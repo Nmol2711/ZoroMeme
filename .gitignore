@@ -1,0 +1,19 @@
+# 🔐 SEGURIDAD: Nunca subir la API Key
+.env
+
+# 🐍 PYTHON: Archivos temporales y entornos
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+.venv/
+
+# 📦 EMPAQUETADO: Archivos de PyInstaller
+build/
+dist/
+*.spec
+
+# 📂 CONFIGURACIÓN LOCAL Y LOGS
+config.json
+*.log
