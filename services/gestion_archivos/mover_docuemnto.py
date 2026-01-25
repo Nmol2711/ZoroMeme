@@ -5,6 +5,8 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
     ruta_home = Path.home()
 
     carpeta_destino = Path(ruta_home / "Documents" / nombre_destino)
+    if str(carpeta_destino) == str(ruta_origen):
+        return True  # No es un error, pero no se mueve
     try:
         if not carpeta_destino.exists():
             carpeta_destino.mkdir(parents=True, exist_ok=True)
@@ -20,5 +22,8 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
 
         shutil.move(str(ruta_origen), str(destino_final))
         print(f"Archivo movido a la carpeta: {nombre_destino} -> {destino_final.name}")
+        return True
     except Exception as e:
         print(f"Error al mover el archivo: {e}")
+        return False
+
