@@ -5,6 +5,9 @@ from groq import Groq
 import json
 import datetime
 from pathlib import Path
+
+DOCUMENTOS_PERMITIDOS = ['.pdf', '.docx', '.txt', '.xlsx', '.pptx']
+
 class OrganizarDocumentosServices(ConfiguracionServices):
     def __init__(self):
         super().__init__()
@@ -36,7 +39,7 @@ class OrganizarDocumentosServices(ConfiguracionServices):
         try:
             carpeta_path = Path(carpeta_ruta)
             
-            archivos = [f for f in carpeta_path.iterdir() if f.is_file() and not f.name.startswith('~$')]
+            archivos = [f for f in carpeta_path.iterdir() if f.is_file() and not f.name.startswith('~$') and f.suffix.lower() in DOCUMENTOS_PERMITIDOS]
 
             self.guardar_archivo_log([(timestamp, f"Iniciando sesión en: {str(carpeta_path)}. Archivos a analizar: {len(archivos)}")])
             
