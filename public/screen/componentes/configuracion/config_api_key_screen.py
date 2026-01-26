@@ -50,7 +50,7 @@ class ConfigApiKeyScreen(ctk.CTkFrame):
                     justify="left").pack(pady=20, padx=20, anchor="w")
         
         ctk.CTkLabel(self.frame_paso1,
-                     text="1 dirigete a la siguiente pagina: ", 
+                     text="1 Dirigete a la siguiente pagina: ", 
                      font=FONT_NORMAL, 
                      text_color=COLOR_TEXTO_SUBTITULO, 
                      justify="left").pack(padx=20, anchor="w")

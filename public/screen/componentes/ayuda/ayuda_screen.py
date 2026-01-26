@@ -12,7 +12,7 @@ REPUESTAJE_PREGUNTAS_FRECUENTES = {
     
     "Como puedo configurar las carpetas donde se va a organizar?": """En la sección 'Configuración', puedes especificar las carpetas que deseas organizar. Añade el nombre de la carpeta en la seccion de configuración de carpetas, y agregale las palabras clave por las cuales se seleccionaran los archivos a mover.""",
     
-    "Como un prompt para que me ayude a organizar mis carpetas?": """Prompt para la IA
+    "Como crear un prompt para que me ayude a organizar mis carpetas?": """Prompt para la IA
         Actúa como un experto en estructuración de datos. Necesito que analices un listado de carpetas y generes palabras clave técnicas relacionadas con cada una, enfocadas en [Menciona aquí tu área, ej: Medicina Veterinaria y Programación].
 
         Instrucciones de formato:
@@ -95,9 +95,9 @@ class AyudaScreen(ctk.CTkFrame):
         ctk.CTkLabel(self.frame_respuesta, text=pregunta, font=FONT_TITULO_SECUNDARIO, text_color=COLOR_TEXTO_TITULO, wraplength=700, justify="left").pack(pady=(0, 20), anchor="w")
 
         # Contenido de la respuesta
-        textbox = ctk.CTkTextbox(self.frame_respuesta, width=800, height=400 if pregunta == "Como un prompt para que me ayude a organizar mis carpetas?" else 200, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, wrap="word")
+        textbox = ctk.CTkTextbox(self.frame_respuesta, width=800, height=400 if pregunta == "Como crear un prompt para que me ayude a organizar mis carpetas?" else 200, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, wrap="word")
         
-        if pregunta == "Como un prompt para que me ayude a organizar mis carpetas?":
+        if pregunta == "Como crear un prompt para que me ayude a organizar mis carpetas?":
             textbox.configure(fg_color=COLOR_FONDO_INPUT, text_color=COLOR_TEXTO_INPUT)
         else:
             textbox.configure(fg_color="transparent")

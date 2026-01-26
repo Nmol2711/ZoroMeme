@@ -17,3 +17,6 @@ dist/
 # 📂 CONFIGURACIÓN LOCAL Y LOGS
 config.json
 *.log
+
+# Instaladores y paquetes
+instalador/

@@ -11,7 +11,7 @@ class ConfigDirectoriosDestinosScreen(ctk.CTkFrame):
         self.parent_principal = parent_principal
         self.config_services = config_services
         self.listado_directorios = []
-        ctk.CTkLabel(self, text="Configuración de Directorios Destinos: Agregue la el nombre de la carpeta\n y la palabra clave asociada que sean extremadamente únicas para cada directorio.", font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, justify="left").pack( padx=20, anchor="w")
+        ctk.CTkLabel(self, text="Configuración de Directorios Destinos: Agregue el nombre de la carpeta\n y las palabras claves asociada que sean extremadamente únicas para cada directorio.", font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, justify="left").pack( padx=20, anchor="w")
 
         self.boton_agregar_directorio = ctk.CTkButton(self,
                                             text="  Agregar  ", 
