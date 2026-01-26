@@ -42,7 +42,7 @@ class AcercaDeScreen(ctk.CTkFrame):
         
         # --- Info Principal ---
         ctk.CTkLabel(text_frame, text="ZoroMeme", font=("Roboto", 28, "bold"), text_color=COLOR_TEXTO_TITULO).pack(anchor="w", pady=(10,0))
-        ctk.CTkLabel(text_frame, text="Versión 2.0 Beta", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO).pack(anchor="w")
+        ctk.CTkLabel(text_frame, text="Versión 2.1 Beta", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO).pack(anchor="w")
 
         # --- Desarrollador ---
         ctk.CTkLabel(text_frame, text="\nDesarrollado por:", font=FONT_TITULO_SECUNDARIO, text_color=COLOR_TEXTO_TITULO).pack(anchor="w", pady=(20, 5))

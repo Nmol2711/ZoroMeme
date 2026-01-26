@@ -5,7 +5,9 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
     ruta_home = Path.home()
 
     carpeta_destino = Path(ruta_home / "Documents" / nombre_destino)
-    if str(carpeta_destino) == str(ruta_origen):
+    
+    # Verificamos si el archivo ya está en la carpeta destino (comparando con el padre del archivo)
+    if carpeta_destino.resolve() == ruta_origen.parent.resolve():
         return True  # No es un error, pero no se mueve
     try:
         if not carpeta_destino.exists():
@@ -17,7 +19,9 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
         if destino_final.exists():
             contador = 1
             while destino_final.exists():
-                destino_final = carpeta_destino / f"{ruta_origen.stem} ({contador}){ruta_origen.suffix}"
+                # Usamos f-string con stem y suffix para mantener la extensión correcta
+                nuevo_nombre = f"{ruta_origen.stem} ({contador}){ruta_origen.suffix}"
+                destino_final = carpeta_destino / nuevo_nombre
                 contador += 1
 
         shutil.move(str(ruta_origen), str(destino_final))
@@ -26,4 +30,3 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
     except Exception as e:
         print(f"Error al mover el archivo: {e}")
         return False
-

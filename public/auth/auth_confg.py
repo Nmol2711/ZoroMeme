@@ -36,7 +36,6 @@ class AuthCofig:
     
     def existe_diccionario_palabras(self):
         resultado = self.configuracion_services.obtener_diccionario_palabras()  
-        resultado = self.configuracion_services.obtener_api_key()
         if resultado == None:
             return (False,"No se ha insertado el nombre de los directorios destinos\nDirijase a la configuracion para insertar los directorios")
         elif resultado == False:

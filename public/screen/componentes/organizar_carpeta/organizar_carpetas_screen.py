@@ -7,6 +7,7 @@ from services.organizador_documentos.organizador_documentos import OrganizarDocu
 from utils.config_componen_utils import *
 from utils.path_ultil import *
 from public.widget.mensaje_alerta import mensaje_alerta
+from utils.existe_conexion import check_internet_socket
 
 
 class ScreenOrganizarCarpeta(ctk.CTkFrame):
@@ -122,6 +123,7 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
             self.boton_continuar.configure(state="normal")
     
     def continuar(self):
+        
         if self.ruta_carpeta:
             # Deshabilitar botones y mostrar progreso
             self.boton_continuar.configure(state="disabled")
@@ -136,15 +138,45 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
             thread = threading.Thread(target=self.proceso_organizar)
             thread.start()
 
+    def restaurar_ui(self):
+        """Restaura la interfaz si falla una validación inicial sin borrar la ruta."""
+        self.progressbar.stop()
+        self.frame_progreso.pack_forget()
+        self.boton_continuar.configure(state="normal")
+        self.boton_eliminar_ruta.configure(state="normal")
+
     def proceso_organizar(self):
+        
+        # Validamos la API Key desempaquetando la tupla (bool, mensaje)
+        existe_api, mensaje_api = self.auth_config.existe_api_key()
+        existe_dir, mensaje_dir = self.auth_config.existe_diccionario_palabras()
+        if not existe_api:
+            self.after(0, self.restaurar_ui)
+            self.after(0, lambda: mensaje_alerta("API Key no configurada", mensaje_api))
+            return
+        
+        if not check_internet_socket():
+            self.after(0, self.restaurar_ui)
+            self.after(0, lambda: mensaje_alerta("Sin conexión a Internet", "Por favor, verifique su conexión a Internet e intente nuevamente."))
+            return
+        
+        if not existe_dir:
+            self.after(0, self.restaurar_ui)
+            self.after(0, lambda: mensaje_alerta("Diccionario de palabras no configurado", mensaje_dir))
+            return
+
         # Esta es la función que se ejecuta en el hilo secundario
-        informe = self.services.organizar_hibrido(
-            self.ruta_carpeta, 
-            self.auth_config.obtener_cliente_groq(), 
-            self.services.archivo_log
-        )
-        # Cuando el hilo termina, programamos la actualización de la UI en el hilo principal
-        self.after(0, self.finalizar_proceso, informe)
+        try:
+            informe = self.services.organizar_hibrido(
+                self.ruta_carpeta, 
+                self.auth_config.obtener_cliente_groq(), 
+                self.services.archivo_log
+            )
+            # Cuando el hilo termina, programamos la actualización de la UI en el hilo principal
+            self.after(0, self.finalizar_proceso, informe)
+        except Exception as e:
+            print(f"Error inesperado en el hilo de organización: {e}")
+            self.after(0, self.finalizar_proceso, None)
 
     def finalizar_proceso(self, informe):
         # Detener y ocultar la barra de progreso

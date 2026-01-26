@@ -37,7 +37,8 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         #Configuracion del tamano de la ventana
         ancho_pantalla = self.winfo_screenwidth()  
         alto_pantalla = self.winfo_screenheight()
-        self.tamano_ventana  = AppConfig().evaluar_tamano_pantalla(ancho_pantalla, alto_pantalla)  # Evaluamos el tamaño de la pantalla
+        self.tamano_ventana  = self.app_config.evaluar_tamano_pantalla(ancho_pantalla, alto_pantalla)  # Evaluamos el tamaño de la pantalla
+        print("Tamaño de la ventana: ",self.tamano_ventana)
         width, height = map(int, self.tamano_ventana.split("x"))
         self.app_config.centrar_ventana(self, width, height)
         self.geometry(self.tamano_ventana)

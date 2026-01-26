@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from public.auth.auth_confg import AuthCofig
 from public.screen.componentes.ayuda.ayuda_screen import AyudaScreen
 from public.screen.componentes.acerca_de_screen.acerca_de_screen import AcercaDeScreen
 from public.screen.componentes.configuracion.configuracion_screen import ConfiguracionScreen
@@ -14,7 +15,7 @@ from datetime import datetime
 from public.screen.componentes.organizar_carpeta.organizar_carpetas_screen import ScreenOrganizarCarpeta
 
 class ScreenPrincipal(ScreenBase):
-    def __init__(self, master, auth_config: AppConfig, services):
+    def __init__(self, master, auth_config: AuthCofig, services):
         super().__init__(master, auth_config, services)
         
         self.inicio()
@@ -57,8 +58,8 @@ class ScreenPrincipal(ScreenBase):
         frame_texto = ctk.CTkFrame(frame_inicio, fg_color="transparent")
         frame_texto.grid(row=0, column=0, sticky="nw", padx=40, pady=100)
 
-        ctk.CTkLabel(frame_texto, text="Bienvenidos al inicio del \nsistema organizador", text_color="white", font=("Roboto", 32, "bold"), justify="left").pack(anchor="w")
-        ctk.CTkLabel(frame_texto, text="Tu asistente inteligente para gestionar documentos.", text_color="gray", font=("Roboto", 16)).pack(anchor="w", pady=5)
+        ctk.CTkLabel(frame_texto, text="Bienvenidos al inicio del \nsistema organizador", text_color="white", font=FONT_TITULO_PRINCIPAL, justify="left").pack(anchor="w")
+        ctk.CTkLabel(frame_texto, text="Tu asistente inteligente para gestionar documentos.", text_color="gray", font=FONT_NORMAL).pack(anchor="w", pady=5)
 
         # --- SECCIÓN IZQUIERDA INFERIOR: Estadísticas ---
         frame_stats = ctk.CTkFrame(frame_inicio, fg_color="transparent")
@@ -74,7 +75,9 @@ class ScreenPrincipal(ScreenBase):
         crear_stat_box("Archivos Movidos", str(estadisticas[1]))
 
         # --- SECCIÓN DERECHA: Imagen ---
-        goku = leer_imagen(Settings().ruta_img["goku_inicio"], tamano=700)
+        tamano_goku = AppConfig().tamano_goku_actual
+        print("Tamaño de Goku en inicio:", tamano_goku)
+        goku = leer_imagen(Settings().ruta_img["goku_inicio"], tamano=tamano_goku)
         goku_label = ctk.CTkLabel(frame_inicio, image=goku, text="")
         # rowspan=2 permite que la imagen ocupe tanto la fila del texto como la de las stats
         goku_label.grid(row=0, column=1, rowspan=2, sticky="nsew")

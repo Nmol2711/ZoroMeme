@@ -33,6 +33,21 @@ FONT_MENU = (FUENTE_BASE, TAMANO_TEXTO_MENU)
 FONT_NORMAL = (FUENTE_BASE, TAMANO_TEXTO_NORMAL)
 FONT_PEQUENO = (FUENTE_BASE, TAMANO_TEXTO_PEQUENO)
 
+def actualizar_fuentes_globales():
+    """
+    Reconstruye las tuplas de fuentes globales con los tamaños de fuente actuales.
+    Debe llamarse después de modificar las variables TAMANO_... para que los cambios
+    se apliquen en toda la aplicación.
+    """
+    global FONT_TITULO_PRINCIPAL, FONT_TITULO_SECUNDARIO, FONT_MENU, FONT_NORMAL, FONT_PEQUENO
+    
+    FONT_TITULO_PRINCIPAL = (FUENTE_BASE, TAMANO_TITULO_PRINCIPAL, "bold")
+    FONT_TITULO_SECUNDARIO = (FUENTE_BASE, TAMANO_TITULO_SECUNDARIO, "bold")
+    FONT_MENU = (FUENTE_BASE, TAMANO_TEXTO_MENU)
+    FONT_NORMAL = (FUENTE_BASE, TAMANO_TEXTO_NORMAL)
+    FONT_PEQUENO = (FUENTE_BASE, TAMANO_TEXTO_PEQUENO)
+
+
 #Estilos para los botones
 COLOR_BOTON_GOKU = '#D35400'       # Naranja quemado (Menos brillante)
 COLOR_BOTON_GOKU_HOVER = '#A04000' # Naranja más oscuro (Hover)
