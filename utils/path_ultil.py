@@ -1,8 +1,12 @@
 import sys
 import os
+import platform
 from importlib import resources
+from pathlib import Path
 import customtkinter as ctk
 from PIL import Image
+from plyer import filechooser
+
 
 def resource_path(relative_path):
     """Devuelve la ruta absoluta a un recurso, compatible con:
@@ -88,9 +92,22 @@ def leer_imagen(ruta, tamano=None):
             return None
     
 def seleccionar_carpeta():
+    # Detectar ruta de documentos (Inglés o Español)
+    home = Path.home()
+    initial_path = home
+    
+    if (home / "Documents").exists():
+        initial_path = home / "Documents"
+    elif (home / "Documentos").exists():
+        initial_path = home / "Documentos"
+
     # Abre el explorador de archivos para elegir una carpeta
+    if platform.system() == "Linux":
+        ruta = filechooser.choose_dir(title="Selecciona la carpeta para organizar", path=str(initial_path))
+        return ruta[0] if ruta else ""
+
     ruta = ctk.filedialog.askdirectory(
         title="Selecciona la carpeta que deseas organizar",
-        initialdir="/" # Puedes poner "C:/" o lo que gustes
+        initialdir=str(initial_path)
     )
     return ruta

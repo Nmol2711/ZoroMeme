@@ -2,58 +2,64 @@ from pathlib import Path
 import os
 import json
 from datetime import datetime
+from config.app_config import AppConfig
+
 
 class ConfiguracionServices:
     def __init__(self):
         self.api_key = None
         self.archivo_log = None
         self.diccionario_palabras : dict[str, list[str]] = None
+        
+        # --- Lógica multiplataforma para rutas de configuración ---
+        system = AppConfig().sistema_operativo
+        if system == "Windows":
+            # %APPDATA%\OrganizadorIA
+            self.ruta_app_data = Path(os.getenv('APPDATA')) / "OrganizadorIA"
+        elif system == "Linux":
+            # ~/.config/OrganizadorIA (estándar XDG)
+            self.ruta_app_data = Path.home() / ".config" / "OrganizadorIA"
+        elif system == "Darwin": # macOS
+            # ~/Library/Application Support/OrganizadorIA
+            self.ruta_app_data = Path.home() / "Library" / "Application Support" / "OrganizadorIA"
+        else: # Fallback para otros sistemas
+            self.ruta_app_data = Path.home() / ".OrganizadorIA"
 
-        #Crear las carpetas necesarias en AppData
-        ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-        ruta_config = ruta_appdata / "config"
-        ruta_log = ruta_appdata / "log"
+        self.ruta_config = self.ruta_app_data / "config"
+        self.ruta_log = self.ruta_app_data / "log"
 
-        ruta_appdata.mkdir(exist_ok=True)
-        ruta_config.mkdir(parents=True, exist_ok=True)
-        ruta_log.mkdir(parents=True, exist_ok=True)
+        # Crear las carpetas necesarias
+        self.ruta_app_data.mkdir(exist_ok=True)
+        self.ruta_config.mkdir(parents=True, exist_ok=True)
+        self.ruta_log.mkdir(parents=True, exist_ok=True)
 
         # Inicializar archivos si no existen para evitar errores de lectura
-        if not (ruta_config / "config.json").exists():
-            with open(ruta_config / "config.json", "w") as f:
+        if not (self.ruta_config / "config.json").exists():
+            with open(self.ruta_config / "config.json", "w") as f:
                 json.dump({}, f)
 
-        if not (ruta_config / "diccionario_palabras.json").exists():
-            with open(ruta_config / "diccionario_palabras.json", "w") as f:
+        if not (self.ruta_config / "diccionario_palabras.json").exists():
+            with open(self.ruta_config / "diccionario_palabras.json", "w") as f:
                 json.dump({}, f)
         
-        if not (ruta_log / "historial_orden.log").exists():
-            with open(ruta_log / "historial_orden.log", "w") as f:
+        if not (self.ruta_log / "historial_orden.log").exists():
+            with open(self.ruta_log / "historial_orden.log", "w") as f:
                 pass
 
     def obtener_api_key(self):
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            ruta_appdata.mkdir(exist_ok=True)
-            archivo_config = ruta_appdata /"config"/"config.json"
-
+            archivo_config = self.ruta_config / "config.json"
             if not archivo_config.exists():
-                return None #None para No existe el archivo
-            
+                return None
             with open(archivo_config, "r") as f:
-                config = json.load(f)
-            
-            return config.get("api_key")
+                return json.load(f).get("api_key")
         except Exception as e:
             print(f"Error al obtener la API key: {e}")
-            return False #False para decir que ubo erro
+            return False
     
     def obtener_archivo_log(self, fecha_inicio: str = None, fecha_fin: str = None, filtro_texto: str = None):
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            ruta_appdata.mkdir(exist_ok=True)
-            archivo_log = ruta_appdata /"log"/"historial_orden.log"
-            
+            archivo_log = self.ruta_log / "historial_orden.log"
             if not archivo_log.exists():
                 return [] if (fecha_inicio or fecha_fin or filtro_texto) else None
 
@@ -89,9 +95,7 @@ class ConfiguracionServices:
         
     def obtener_carpetas_analizadas_archivos_movidos(self, fecha_inicio: str = None, fecha_fin: str = None) -> tuple[int, int]:
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            archivo_log = ruta_appdata /"log"/"historial_orden.log"
-            
+            archivo_log = self.ruta_log / "historial_orden.log"
             if not archivo_log.exists():
                 return (0, 0)
 
@@ -125,25 +129,20 @@ class ConfiguracionServices:
     
     def obtener_diccionario_palabras(self):
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            ruta_appdata.mkdir(exist_ok=True)
-            archivo_diccionario = ruta_appdata / "config" / "diccionario_palabras.json"
-
+            archivo_diccionario = self.ruta_config / "diccionario_palabras.json"
             if not archivo_diccionario.exists():
-                return None #None para No existe el archivo
-            
+                return None
             with open(archivo_diccionario, "r") as f:
                 diccionario = json.load(f)
             return diccionario
         except Exception as e:
             print(f"Error al obtener el diccionario de palabras: {e}")
-            return False #False para decir que ubo error
+            return False
         
     def guardar_api_key(self, nueva_key):
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            (ruta_appdata / "config").mkdir(parents=True, exist_ok=True)
-            archivo_config = ruta_appdata /"config"/"config.json"
+            self.ruta_config.mkdir(parents=True, exist_ok=True)
+            archivo_config = self.ruta_config / "config.json"
 
             config = {}
             if archivo_config.exists():
@@ -165,10 +164,7 @@ class ConfiguracionServices:
     
     def guardar_diccionario_palabras(self, nuevo_diccionario: dict[str, list[str]]):
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            ruta_appdata.mkdir(exist_ok=True)
-            archivo_diccionario = ruta_appdata / "config" / "diccionario_palabras.json"
-
+            archivo_diccionario = self.ruta_config / "diccionario_palabras.json"
             with open(archivo_diccionario, "w") as f:
                 json.dump(nuevo_diccionario, f)
             
@@ -180,10 +176,7 @@ class ConfiguracionServices:
     
     def guardar_archivo_log(self, movimientos: list[tuple[str, str]]): # espera resivir una lista de tuplas (fecha, operacion realizada)
         try:
-            ruta_appdata = Path(os.getenv('APPDATA')) / "OrganizadorIA"
-            ruta_appdata.mkdir(exist_ok=True)
-            archivo_log = ruta_appdata /"log"/"historial_orden.log"
-
+            archivo_log = self.ruta_log / "historial_orden.log"
             with open(archivo_log, "a") as f:
                 for fecha, operacion in movimientos:
                     f.write(f"{fecha}: {operacion}\n")

@@ -3,7 +3,7 @@ from utils.path_ultil import resource_path
 # Importamos el módulo de estilos y la función para actualizar fuentes
 import utils.config_componen_utils as style
 from utils.config_componen_utils import actualizar_fuentes_globales
-import tkinter as tk
+import platform
 
 class AppConfig:
     def __init__(self):
@@ -13,12 +13,15 @@ class AppConfig:
         self.titulo_ventana = "Sistema Organizador de Docuementos"
         self.icono = resource_path(os.path.join('resources', 'logo.ico'))
 
+        # Obtener el sistema operativo
+        self.sistema_operativo = platform.system()
+
         self.categoria = "super_grande"  # Valor por defecto
         # Tamaños recomendados de ventana para cada rango de pantalla
         # Se establece un tamaño mínimo seguro para evitar que la UI se rompa en resoluciones pequeñas.
         self.tamano_ventana = {
             "super_grande": (1200, 800),
-            "grande": (1100, 700),
+            "grande": (1200, 680),
             "medio": (1024, 680),
             "pequeno": (980, 650), # Tamaño mínimo seguro para la UI actual
         }

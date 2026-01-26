@@ -4,7 +4,13 @@ from pathlib import Path
 def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
     ruta_home = Path.home()
 
-    carpeta_destino = Path(ruta_home / "Documents" / nombre_destino)
+    # Verificar si existe "Documentos" (Linux en español) o usar "Documents" (Windows/Linux en inglés)
+    if (ruta_home / "Documentos").exists():
+        carpeta_base = ruta_home / "Documentos"
+    else:
+        carpeta_base = ruta_home / "Documents"
+
+    carpeta_destino = carpeta_base / nombre_destino
     
     # Verificamos si el archivo ya está en la carpeta destino (comparando con el padre del archivo)
     if carpeta_destino.resolve() == ruta_origen.parent.resolve():
@@ -25,7 +31,7 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
                 contador += 1
 
         shutil.move(str(ruta_origen), str(destino_final))
-        print(f"Archivo movido a la carpeta: {nombre_destino} -> {destino_final.name}")
+        print(f"Archivo movido a: {destino_final}")
         return True
     except Exception as e:
         print(f"Error al mover el archivo: {e}")

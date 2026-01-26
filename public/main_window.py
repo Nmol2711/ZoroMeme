@@ -2,6 +2,7 @@ import customtkinter as ctk
 import ctypes
 from tkinterdnd2 import TkinterDnD
 from config.app_config import AppConfig
+from PIL import Image, ImageTk
 
 #importar serices
 from services.configuracion_services.configuracion_services import ConfiguracionServices
@@ -19,10 +20,12 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         ctk.deactivate_automatic_dpi_awareness()
         ctk.set_window_scaling(1.0)
         ctk.set_widget_scaling(1.0)
-        try:
-            ctypes.windll.shcore.SetProcessDpiAwareness(1)
-        except Exception:
-            ctypes.windll.user32.SetProcessDPIAware()
+        
+        if AppConfig().sistema_operativo == "Windows":
+            try:
+                ctypes.windll.shcore.SetProcessDpiAwareness(1)
+            except Exception:
+                ctypes.windll.user32.SetProcessDPIAware()
 
         super().__init__()
 
@@ -32,7 +35,13 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.app_config = AppConfig()
         self.title(self.app_config.titulo_ventana)
-        self.iconbitmap(self.app_config.icono)
+        
+        # Configuración del icono según el sistema operativo
+        if self.app_config.sistema_operativo == "Windows":
+            self.iconbitmap(self.app_config.icono)
+        else:
+            # En Linux/macOS usamos wm_iconphoto con la imagen cargada por PIL
+            self.wm_iconphoto(False, ImageTk.PhotoImage(Image.open(self.app_config.icono)))
          
         #Configuracion del tamano de la ventana
         ancho_pantalla = self.winfo_screenwidth()  
@@ -41,9 +50,13 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         print("Tamaño de la ventana: ",self.tamano_ventana)
         width, height = map(int, self.tamano_ventana.split("x"))
         self.app_config.centrar_ventana(self, width, height)
-        self.geometry(self.tamano_ventana)
         self.minsize(width, height)
-        #self.resizable(False, False)
+        self.resizable(True, True)
+        # Iniciar la ventana maximizada (habilita el "cuadrito" de pantalla completa)
+        if self.app_config.sistema_operativo == "Windows":
+            self.state('zoomed')
+        elif self.app_config.sistema_operativo == "Linux":
+            self.attributes('-zoomed', True)
         #configuracion de tema y colores
         ctk.set_appearance_mode(self.app_config.tema)
 
