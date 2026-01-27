@@ -13,7 +13,6 @@ class OrganizarDocumentosServices(ConfiguracionServices):
         super().__init__()
         self.api_key = self.obtener_api_key()
         self.diccionario_palabras = self.obtener_diccionario_palabras()
-        self.archivo_log = self.obtener_archivo_log()
     
     def clasificar_con_groq(self,lista_pendientes, client: Groq):
         materias = ", ".join(self.diccionario_palabras.keys())
@@ -34,7 +33,7 @@ class OrganizarDocumentosServices(ConfiguracionServices):
             print(f"❌ Error en IA: {e}")
             return {}
     
-    def organizar_hibrido(self,carpeta_ruta, client: Groq, archivo_log):
+    def organizar_hibrido(self,carpeta_ruta, client: Groq):
         timestamp = str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         try:
             carpeta_path = Path(carpeta_ruta)
@@ -47,7 +46,6 @@ class OrganizarDocumentosServices(ConfiguracionServices):
 
             informe_resultados = {"archivos_analizados": len(archivos), "archivos_movidos": 0, "nombre_archivos_movidos": []}
             self.diccionario_palabras = self.obtener_diccionario_palabras()
-
             for ruta in archivos:
                 texto = extraer_texto_del_archivo(ruta)
                 texto_lower = texto.lower()
@@ -55,7 +53,8 @@ class OrganizarDocumentosServices(ConfiguracionServices):
 
                 for materia, keywords in self.diccionario_palabras.items():
                     coincidencias = sum(1 for k in keywords if k.lower() in texto_lower)
-                    if coincidencias >= 2:
+                    umbral = 1 if len(keywords) == 1 else 2
+                    if coincidencias >= umbral:
                         if mover_archivos_a_carpeta(ruta, materia):
                             informe_resultados["archivos_movidos"] += 1
                             informe_resultados["nombre_archivos_movidos"].append((ruta.name, materia))
@@ -67,16 +66,19 @@ class OrganizarDocumentosServices(ConfiguracionServices):
                     pendientes_para_ia.append((ruta.name, texto, ruta))
 
             if pendientes_para_ia:
-                print(f"\n🤖 Consultando a la IA...")
-                resultados_ia = self.clasificar_con_groq([(n, t) for n, t, r in pendientes_para_ia], client)
+                # Procesar en lotes para evitar error 413 (Rate Limit)
+                tamano_lote = 5
+                for i in range(0, len(pendientes_para_ia), tamano_lote):
+                    lote = pendientes_para_ia[i:i + tamano_lote]
+                    resultados_ia = self.clasificar_con_groq([(n, t) for n, t, r in lote], client)
 
-                for nombre, texto, ruta in pendientes_para_ia:
-                    categoria = resultados_ia.get(nombre, "Otros")
-                    if categoria not in self.diccionario_palabras: categoria = "Otros"
-                    if mover_archivos_a_carpeta(ruta, categoria):
-                        informe_resultados["archivos_movidos"] += 1
-                        informe_resultados["nombre_archivos_movidos"].append((nombre, categoria))
-                    self.guardar_archivo_log([(timestamp, f"IA: {nombre} movido a {categoria}")])
+                    for nombre, texto, ruta in lote:
+                        categoria = resultados_ia.get(nombre, "Otros")
+                        if categoria not in self.diccionario_palabras: categoria = "Otros"
+                        if mover_archivos_a_carpeta(ruta, categoria):
+                            informe_resultados["archivos_movidos"] += 1
+                            informe_resultados["nombre_archivos_movidos"].append((nombre, categoria))
+                        self.guardar_archivo_log([(timestamp, f"IA: {nombre} movido a {categoria}")])
             return informe_resultados
         except Exception as e:
             print(f"❌ Error en organización: {e}")

@@ -33,7 +33,7 @@ class ScreenBase(ctk.CTkFrame):
         evaluar_tamano.evaluar_tamano_pantalla(self.winfo_screenwidth(), self.winfo_screenheight())
         if not evaluar_tamano.categoria == "medio" and not evaluar_tamano.categoria == "pequeno":
             self.barra_superior()
-            self.menu_lateral()
+            self.menu()
         else:
             self.menu_superior()
 
@@ -57,7 +57,7 @@ class ScreenBase(ctk.CTkFrame):
         boton = ctk.CTkButton(barra, text="", image=icon_menu, width=32, fg_color="transparent", hover_color="white", command=self.ajustar_menu_lateral)
         boton.pack(side=ctk.LEFT, padx=15)
 
-    def menu_lateral(self):
+    def menu(self):
         self.menu_lateral = ctk.CTkFrame(self, fg_color=COLOR_FONDO_MENU_LATERAL)
         self.menu_lateral.grid(row=1, column=0, sticky="ns")
 
@@ -119,6 +119,7 @@ class ScreenBase(ctk.CTkFrame):
             # Mostrar el sidebar
             self.menu_lateral.grid(row=1, column=0, sticky="ns")
             #self._ajustar_ancho_menu_lateral()
+
     
     def dirijir_atomaticamente_opcion(self, opcion):
         if self.opcion_actual == opcion:
@@ -136,6 +137,11 @@ class ScreenBase(ctk.CTkFrame):
             self.mostrar_ayuda()
         elif opcion == "salir":
             self.salir()
+
+    def controlar_botones_menu(self, habilitado: bool):
+        for botones in self.menu_lateral.winfo_children():
+            if isinstance(botones, ctk.CTkButton):
+                botones.configure(state=ctk.NORMAL if habilitado else ctk.DISABLED)
 
 
     def inicio(self):pass

@@ -70,7 +70,7 @@ class ConfiguracionServices:
             dt_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d") if fecha_inicio else None
             dt_fin = datetime.strptime(fecha_fin, "%Y-%m-%d") if fecha_fin else None
 
-            with open(archivo_log, "r") as f:
+            with open(archivo_log, "r", encoding="utf-8", errors="replace") as f:
                 for linea in f:
                     try:
                         # Filtro de texto (nombre de carpeta, archivo, etc.)
@@ -104,7 +104,7 @@ class ConfiguracionServices:
             dt_inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d") if fecha_inicio else None
             dt_fin = datetime.strptime(fecha_fin, "%Y-%m-%d") if fecha_fin else None
 
-            with open(archivo_log, "r") as f:
+            with open(archivo_log, "r", encoding="utf-8", errors="replace") as f:
                 for linea in f:
                     try:
                         fecha_linea = datetime.strptime(linea[:19], "%Y-%m-%d %H:%M:%S")
@@ -177,7 +177,7 @@ class ConfiguracionServices:
     def guardar_archivo_log(self, movimientos: list[tuple[str, str]]): # espera resivir una lista de tuplas (fecha, operacion realizada)
         try:
             archivo_log = self.ruta_log / "historial_orden.log"
-            with open(archivo_log, "a") as f:
+            with open(archivo_log, "a", encoding="utf-8") as f:
                 for fecha, operacion in movimientos:
                     f.write(f"{fecha}: {operacion}\n")
             

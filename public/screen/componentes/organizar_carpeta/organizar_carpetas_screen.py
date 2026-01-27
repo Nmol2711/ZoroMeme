@@ -129,6 +129,7 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
             self.boton_continuar.configure(state="disabled")
             self.boton_examinar.configure(state="disabled")
             self.boton_eliminar_ruta.configure(state="disabled")
+            self.parent.controlar_botones_menu(False)
             
             self.label_progreso.configure(text="Organizando archivos, por favor espere...")
             self.frame_progreso.pack(pady=10, padx=40, fill="x") # Mostrar el frame de progreso
@@ -144,6 +145,7 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
         self.frame_progreso.pack_forget()
         self.boton_continuar.configure(state="normal")
         self.boton_eliminar_ruta.configure(state="normal")
+        self.parent.controlar_botones_menu(True)
 
     def proceso_organizar(self):
         
@@ -169,8 +171,7 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
         try:
             informe = self.services.organizar_hibrido(
                 self.ruta_carpeta, 
-                self.auth_config.obtener_cliente_groq(), 
-                self.services.archivo_log
+                self.auth_config.obtener_cliente_groq()
             )
             # Cuando el hilo termina, programamos la actualización de la UI en el hilo principal
             self.after(0, self.finalizar_proceso, informe)
@@ -182,6 +183,9 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
         # Detener y ocultar la barra de progreso
         self.progressbar.stop()
         self.frame_progreso.pack_forget()
+
+        # Habilitar botones
+        self.parent.controlar_botones_menu(True)
 
         # Mostrar resultado
         if informe:

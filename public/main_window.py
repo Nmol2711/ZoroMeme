@@ -53,9 +53,7 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
         self.minsize(width, height)
         self.resizable(True, True)
         # Iniciar la ventana maximizada (habilita el "cuadrito" de pantalla completa)
-        if self.app_config.sistema_operativo == "Windows":
-            self.state('zoomed')
-        elif self.app_config.sistema_operativo == "Linux":
+        if self.app_config.sistema_operativo == "Linux":
             self.attributes('-zoomed', True)
         #configuracion de tema y colores
         ctk.set_appearance_mode(self.app_config.tema)
