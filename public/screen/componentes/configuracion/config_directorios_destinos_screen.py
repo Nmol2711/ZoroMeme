@@ -3,6 +3,7 @@ from services.configuracion_services.configuracion_services import Configuracion
 from utils.config_componen_utils import *
 from public.widget.entry import EntryWidget, EntryAnchoWidget
 from utils.path_ultil import *
+from utils.bind_mouse_wheel import bind_mouse_wheel
 from public.widget.mensaje_alerta import mensaje_alerta
 
 class ConfigDirectoriosDestinosScreen(ctk.CTkFrame):
@@ -37,7 +38,6 @@ class ConfigDirectoriosDestinosScreen(ctk.CTkFrame):
                                             hover_color=COLOR_BOTON_PRINCIPAL_HOVER,
                                             command=self.extraer_directorio)
         self.boton_guardar.pack(pady=20, padx=20, side="right", anchor="e")
-        
 
     def contenido(self):
         frame_contenido = ctk.CTkFrame(self, fg_color="transparent")
@@ -49,6 +49,7 @@ class ConfigDirectoriosDestinosScreen(ctk.CTkFrame):
         # Aquí iría la lógica para mostrar y configurar los directorios destinos
         ctk.CTkLabel(self.frame_contenido_mostrar, text="Aquí puedes configurar los directorios destinos basados en palabras clave.", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO, justify="left").pack(pady=20, padx=20, anchor="w")
         # Por ejemplo, una lista de reglas actuales
+        bind_mouse_wheel(self.frame_contenido_mostrar, self.frame_contenido_mostrar)
         
     def cargar_datos_existentes(self):
         datos = self.config_services.obtener_diccionario_palabras()
@@ -89,7 +90,8 @@ class ConfigDirectoriosDestinosScreen(ctk.CTkFrame):
                                         command=eliminar_directorio)
         boton_eliminar.pack(side="right", padx=10, anchor="n")
 
-
+        self.update_idletasks()
+        bind_mouse_wheel(freme_agregar, self.frame_contenido_mostrar)
     
     def extraer_directorio(self):
         directorio_guardar = {}

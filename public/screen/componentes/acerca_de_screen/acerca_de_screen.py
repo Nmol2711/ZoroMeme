@@ -3,6 +3,8 @@ from config.settings import Settings
 from utils.config_componen_utils import *
 from public.widget.enlaces import CTkHyperlink
 from utils.path_ultil import leer_imagen
+from utils.bind_mouse_wheel import bind_mouse_wheel
+
 
 class AcercaDeScreen(ctk.CTkFrame):
     def __init__(self, master, parent, **kwargs):
@@ -69,3 +71,5 @@ El organizador es "híbrido", lo que significa que es rápido y eficiente:
         agradecimientos_text = """- A Groq Inc. por proporcionar acceso a su veloz API de inferencia.
 - A la comunidad de código abierto por las librerías que hacen posible este proyecto, como CustomTkinter, PyMuPDF y python-docx."""
         ctk.CTkLabel(text_frame, text=agradecimientos_text, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, wraplength=500, justify="left").pack(anchor="w")
+
+        bind_mouse_wheel(scroll_frame, scroll_frame)

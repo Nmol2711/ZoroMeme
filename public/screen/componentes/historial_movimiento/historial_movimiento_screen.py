@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from public.widget.entry import EntryWidget
 from utils.config_componen_utils import *
+from utils.bind_mouse_wheel import bind_mouse_wheel
 from datetime import datetime, timedelta
 
 from services.configuracion_services.configuracion_services import ConfiguracionServices
@@ -64,40 +65,56 @@ class HistorialMovimientoScreen(ctk.CTkFrame):
         self.mostrar_datos_en_tabla(historial)
 
     def mostrar_datos_en_tabla(self, historial: list):
-        # Limpiar resultados anteriores
+        # 1. Limpiar resultados anteriores
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
+        
+        # 2. Resetear el scroll a la posición inicial
+        self.scrollable_frame._parent_canvas.yview_moveto(0)
 
-        # Encabezados de la tabla
+        # --- CAMBIO CLAVE: Resetear el grid para que no mantenga filas viejas ---
+        # Esto elimina cualquier configuración de peso de búsquedas anteriores
+        for i in range(101): # MAX_ITEMS + 1
+            self.scrollable_frame.grid_rowconfigure(i, weight=0)
+
+        # 3. Encabezados
         ctk.CTkLabel(self.scrollable_frame, text="Fecha y Hora", font=FONT_MENU, text_color=COLOR_TEXTO_TITULO).grid(row=0, column=0, sticky="w", padx=5, pady=5)
         ctk.CTkLabel(self.scrollable_frame, text="Operación Realizada", font=FONT_MENU, text_color=COLOR_TEXTO_TITULO).grid(row=0, column=1, sticky="w", padx=5, pady=5)
 
         if not historial:
-            ctk.CTkLabel(self.scrollable_frame, text="No se encontraron registros para el período seleccionado.", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO).grid(row=1, column=0, columnspan=2, pady=20)
+            ctk.CTkLabel(self.scrollable_frame, text="No se encontraron registros...", font=FONT_NORMAL).grid(row=1, column=0, columnspan=2, pady=20)
+            self.update_idletasks()
+            # Forzar el tamaño al mínimo si no hay nada
+            self.scrollable_frame._parent_canvas.configure(scrollregion=(0, 0, 0, 0))
             return
 
-        # OPTIMIZACIÓN: Invertir lista para ver lo más reciente primero y limitar cantidad para evitar lag
+        # 4. Renderizado (Igual que antes)
         historial_invertido = historial[::-1]
-        MAX_ITEMS = 100 # Límite de filas para mantener la fluidez de la UI
+        MAX_ITEMS = 100 
         datos_a_mostrar = historial_invertido[:MAX_ITEMS]
 
         for i, linea in enumerate(datos_a_mostrar, start=1):
-            try:
-                # Formato esperado: "YYYY-MM-DD HH:MM:SS: mensaje"
-                fecha_hora = linea[:19] if len(linea) >= 19 else ""
-                mensaje = linea[21:] if len(linea) > 21 else linea
-                
-                # Colores de fila alternados para mejor legibilidad
-                row_color = COLOR_FONDO_INPUT if i % 2 != 0 else "transparent"
+            fecha_hora = linea[:19] if len(linea) >= 19 else ""
+            mensaje = linea[21:] if len(linea) > 21 else linea
+            row_color = COLOR_FONDO_INPUT if i % 2 != 0 else "transparent"
 
-                label_fecha = ctk.CTkLabel(self.scrollable_frame, text=fecha_hora, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, anchor="w", fg_color=row_color)
-                label_fecha.grid(row=i, column=0, sticky="nsew", padx=5, pady=2)
-                
-                label_mensaje = ctk.CTkLabel(self.scrollable_frame, text=mensaje, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, anchor="w", justify="left", fg_color=row_color)
-                label_mensaje.grid(row=i, column=1, sticky="nsew", padx=5, pady=2)
-            except IndexError:
-                # Ignorar líneas con formato incorrecto
-                continue
-        
+            ctk.CTkLabel(self.scrollable_frame, text=fecha_hora, font=FONT_NORMAL, anchor="w", fg_color=row_color).grid(row=i, column=0, sticky="nsew", padx=5, pady=2)
+            ctk.CTkLabel(self.scrollable_frame, text=mensaje, font=FONT_NORMAL, anchor="w", justify="left", fg_color=row_color).grid(row=i, column=1, sticky="nsew", padx=5, pady=2)
+
+        # 5. Label de aviso
+        ultimo_indice = len(datos_a_mostrar) + 1
         if len(historial) > MAX_ITEMS:
-            ctk.CTkLabel(self.scrollable_frame, text=f"... Mostrando los últimos {MAX_ITEMS} registros (Total: {len(historial)}) ...", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO).grid(row=MAX_ITEMS + 1, column=0, columnspan=2, pady=10)
+            ctk.CTkLabel(self.scrollable_frame, text=f"... Total: {len(historial)} ...", font=FONT_NORMAL).grid(row=ultimo_indice, column=0, columnspan=2, pady=10)
+
+        # --- LA PARTE MÁS IMPORTANTE PARA LINUX ---
+        self.update_idletasks()
+        
+        # Obtenemos el tamaño real de lo que se acaba de dibujar
+        # bbox("all") nos da (x1, y1, x2, y2)
+        region = self.scrollable_frame._parent_canvas.bbox("all")
+        
+        # Obligamos al Canvas a que su área scrolleable sea exactamente ese recuadro
+        self.scrollable_frame._parent_canvas.configure(scrollregion=region)
+        
+        # Aplicamos el bind del mouse
+        bind_mouse_wheel(self.scrollable_frame, self.scrollable_frame)

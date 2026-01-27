@@ -3,6 +3,7 @@ from config.app_config import AppConfig
 from public.auth.auth_confg import AuthCofig
 from utils.config_componen_utils import *
 from utils.path_ultil import *
+from utils.bind_mouse_wheel import bind_mouse_wheel
 from config.settings import Settings
 
 class ScreenBase(ctk.CTkFrame):
@@ -104,7 +105,7 @@ class ScreenBase(ctk.CTkFrame):
                                   )
             
             boton.pack(side="left", padx=5)
-
+        bind_mouse_wheel(botones_frame, botones_frame)
 
     def ajustar_menu_lateral(self):
         """Alterna la visibilidad del sidebar"""
