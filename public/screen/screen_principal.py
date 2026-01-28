@@ -3,6 +3,7 @@ from public.auth.auth_confg import AuthCofig
 from public.screen.componentes.ayuda.ayuda_screen import AyudaScreen
 from public.screen.componentes.acerca_de_screen.acerca_de_screen import AcercaDeScreen
 from public.screen.componentes.configuracion.configuracion_screen import ConfiguracionScreen
+from public.screen.componentes.contacto.contacto_screen import ContactoScreen
 from public.screen.componentes.historial_movimiento.historial_movimiento_screen import HistorialMovimientoScreen
 from public.screen_base import ScreenBase
 from public.widget.mensaje_alerta import mensaje_alerta
@@ -129,6 +130,17 @@ class ScreenPrincipal(ScreenBase):
 
         ayuda_screen = AyudaScreen(self.cuerpo_principal, self)
         ayuda_screen.pack(fill="both", expand=True)
+
+    def contacto(self):
+        if self.opcion_actual == "ayuda":
+            return
+        self.opcion_actual = "ayuda"
+
+        for widget in self.cuerpo_principal.winfo_children():
+            widget.destroy()
+
+        contacto_screen = ContactoScreen(self.cuerpo_principal, self, self.auth_config, self.services)
+        contacto_screen.pack(fill="both", expand=True)
 
     def acerca_de(self):
 

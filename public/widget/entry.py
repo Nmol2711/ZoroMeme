@@ -36,11 +36,13 @@ class EntryWidget(ctk.CTkFrame):
     
 
 class EntryAnchoWidget(ctk.CTkFrame):
-    def __init__(self, master, label_text: str, width: int = 400, height: int = 100):
+    def __init__(self, master, label_text: str, width: int = 400, height: int = 100, max_length: int = None, expand: bool = False):
         super().__init__(master, fg_color="transparent")
         self.label_text = label_text
         self.width = width
         self.height = height
+        self.max_length = max_length
+        self.expand = expand
         self.contenido()
 
     def contenido(self):
@@ -58,8 +60,29 @@ class EntryAnchoWidget(ctk.CTkFrame):
                                       fg_color=COLOR_FONDO_INPUT, 
                                       text_color=COLOR_TEXTO_INPUT,
                                       wrap="word")
-        self.textbox.pack(pady=(0, 10), padx=20, anchor="w")
+        if self.expand:
+            self.textbox.pack(pady=(0, 10), padx=20, anchor="w", fill="both", expand=True)
+        else:
+            self.textbox.pack(pady=(0, 10), padx=20, anchor="w")
 
+        if self.max_length is not None:
+            self.textbox.bind("<KeyRelease>", self.limitar_caracteres)
+            self.contado = ctk.CTkLabel(self, text=f"{len(self.textbox.get('1.0', 'end-1c'))}/{self.max_length}", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO)
+            self.contado.pack(pady=(0, 5), padx=20, anchor="e")
+
+    def limitar_caracteres(self,event):
+        texto = self.textbox.get("1.0", "end-1c") # Obtiene todo el texto
+        
+        if len(texto) > self.max_length:
+            # Si se pasa, borramos lo extra
+            nuevo_texto = texto[:self.max_length]
+            self.textbox.delete("1.0", "end")
+            self.textbox.insert("1.0", nuevo_texto)
+            self.contado.configure(text=f"{len(nuevo_texto)}/{self.max_length}")
+        else:
+            self.contado.configure(text=f"{len(texto)}/{self.max_length}")
+
+  
     def get(self) -> str:
         return self.textbox.get("1.0", "end-1c")
     

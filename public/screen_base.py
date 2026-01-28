@@ -21,6 +21,7 @@ class ScreenBase(ctk.CTkFrame):
             ("Configuración", self.configurar),
             ("Ayuda", self.mostrar_ayuda),
             ("Acerca De", self.acerca_de),
+            ("Enviar Sugerencia", self.contacto),
             ("Salir", self.salir)
         ]
 
@@ -150,6 +151,9 @@ class ScreenBase(ctk.CTkFrame):
     def configurar(self):pass
     def mostrar_ayuda(self):pass
     def acerca_de(self):pass
+    def contacto(self):pass
 
     def salir(self):
         self.master.destroy()
+    
+    
