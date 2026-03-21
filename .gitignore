@@ -20,3 +20,7 @@ config.json
 
 # Instaladores y paquetes
 instalador/
+
+# IDEs
+.vscode/
+.idea/
