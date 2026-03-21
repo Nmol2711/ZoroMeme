@@ -6,6 +6,8 @@ from PIL import Image, ImageTk
 
 #importar serices
 from services.configuracion_services.configuracion_services import ConfiguracionServices
+from services.email_services.email_services import EmailServices
+
 
 #importar auth
 from public.auth.auth_confg import AuthCofig
@@ -63,7 +65,8 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.services = {
             "configuracion_services": ConfiguracionServices(),
-            "organizador_documentos_services": OrganizarDocumentosServices()
+            "organizador_documentos_services": OrganizarDocumentosServices(),
+            "email_services": EmailServices()
         }
 
 

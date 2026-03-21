@@ -139,7 +139,7 @@ class ScreenPrincipal(ScreenBase):
         for widget in self.cuerpo_principal.winfo_children():
             widget.destroy()
 
-        contacto_screen = ContactoScreen(self.cuerpo_principal, self, self.auth_config, self.services)
+        contacto_screen = ContactoScreen(self.cuerpo_principal, self, self.auth_config, self.services["email_services"])
         contacto_screen.pack(fill="both", expand=True)
 
     def acerca_de(self):
