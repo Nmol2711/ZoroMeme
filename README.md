@@ -2,6 +2,31 @@
 
 ¡Bienvenido! Este software utiliza Inteligencia Artificial para analizar el contenido de tus documentos y organizarlos automáticamente en carpetas temáticas. Olvídate de mover archivos uno por uno.
 
+## 📋 Requisitos e Instalación
+
+Para ejecutar este proyecto correctamente, asegúrate de tener instalado **Python 3.10** o superior en tu sistema.
+
+### 1. Crear entorno virtual
+Se recomienda utilizar un entorno virtual para gestionar las dependencias de forma aislada:
+
+*   **Windows:**
+    ```bash
+    python -m venv venv
+    venv\Scripts\activate
+    ```
+*   **Linux / macOS:**
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
+
+### 2. Instalar dependencias
+Una vez activado el entorno virtual, instala las librerías necesarias ejecutando:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## 1. 🔑 Cómo obtener tu Llave de API (Gratis)
 Para que el programa "piense", necesita conectarse a la IA de Groq. Sigue estos pasos:
 
