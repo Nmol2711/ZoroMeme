@@ -2,7 +2,7 @@ import customtkinter as ctk
 from config.app_config import AppConfig
 from public.auth.auth_confg import AuthCofig
 from utils.config_componen_utils import *
-from utils.path_ultil import *
+from utils.path_util import *
 from utils.bind_mouse_wheel import bind_mouse_wheel
 from config.settings import Settings
 

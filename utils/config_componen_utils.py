@@ -3,6 +3,9 @@ COLOR_FONDO_SCREEN_PRINCIPAL = '#242424'  # Color de fondo estándar (Dark Mode)
 COLOR_FONDO_SCREEN_SECUNDARIO = "#2b2929" # Color de fondo secundario
 COLOR_FONDO_MENU_LATERAL = '#2b2b2b'      # Color de superficie/frame (Ligeramente más claro)
 BORDE_COLOR = "#0078D4"
+COLOR_CATEGORIA_CARD = "#333333" # Color para las tarjetas de categorías
+COLOR_CATEGORIA_CARD_HOVER = "#444444" 
+COLOR_CATEGORIA_CARD_SELECTED = "#0078D4"
 
 # Colores de acento (Azules del tema)
 COLOR_AZUL_PRINCIPAL = '#1f6aa5'
@@ -24,6 +27,7 @@ COLOR_TEXTO_SUBTITULO = "gray"  # Para descripciones o textos secundarios
 COLOR_TEXTO_NORMAL = "white"
 COLOR_TEXTO_POSITIVO = "green"
 COLOR_TEXTO_NEGATIVO = "red"
+COLOR_TEXTO_PROGRESO = "#0078D4"
 
 
 # Estilos de Fuente (Listos para usar en font=...)

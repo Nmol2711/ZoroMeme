@@ -1,5 +1,8 @@
 import shutil
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
     ruta_home = Path.home()
@@ -31,8 +34,8 @@ def mover_archivos_a_carpeta(ruta_origen, nombre_destino):
                 contador += 1
 
         shutil.move(str(ruta_origen), str(destino_final))
-        print(f"Archivo movido a: {destino_final}")
+        logger.info(f"Archivo movido a: {destino_final}")
         return True
     except Exception as e:
-        print(f"Error al mover el archivo: {e}")
+        logger.error(f"Error al mover el archivo {ruta_origen}: {e}")
         return False

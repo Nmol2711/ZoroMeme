@@ -130,7 +130,10 @@ class ConfigApiKeyScreen(ctk.CTkFrame):
             self.retonar_configuracion_screen()
 
     def retonar_configuracion_screen(self):
-        # Forzamos la recarga reseteando la opción actual para que el sistema no crea que ya estamos ahí
-        self.parent_principal.opcion_actual = None
-        self.after(100, lambda: self.parent_principal.dirijir_atomaticamente_opcion("configurar"))
+        # self.parent_principal ahora es la instancia de ConfiguracionScreen
+        if hasattr(self.parent_principal, 'mostrar_menu_inicial'):
+            self.parent_principal.mostrar_menu_inicial()
+        else:
+            # Fallback por si acaso
+            self.destroy()
         

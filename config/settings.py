@@ -1,4 +1,4 @@
-from utils.path_ultil import resource_path
+from utils.path_util import resource_path
 
 class Settings:
     def __init__(self):

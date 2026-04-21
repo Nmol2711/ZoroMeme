@@ -5,6 +5,17 @@ from pptx import Presentation
 from pathlib import Path
 import zipfile
 import re
+import logging
+import base64
+
+logger = logging.getLogger(__name__)
+
+# Configuraciones de límites
+MAX_PAGINAS_PDF = 5
+MAX_PARRAFOS_DOCX = 50
+MAX_SLIDES_PPTX = 10
+MAX_FILAS_XLSX = 50
+MAX_TEXTO_CHARS = 2000
 
 def limpiar_xml(xml_content):
     """Elimina etiquetas XML para dejar solo texto."""
@@ -30,50 +41,89 @@ def leer_pptx_raw(ruta):
         pass
     return texto
 
-def extraer_texto_del_archivo(ruta : Path):
-    extension = ruta.suffix.lower()
-    texto_extraido = ""
+def leer_pdf(ruta):
+    texto = ""
+    with fitz.open(ruta) as doc:
+        for pagina in doc.pages(0, min(doc.page_count, MAX_PAGINAS_PDF)): 
+            texto += pagina.get_text()
+    return texto
 
+def leer_docx(ruta):
     try:
-        # --- Leer PDF ---
-        if extension == '.pdf':
-            with fitz.open(ruta) as doc:
-                # Leemos solo las primeras páginas para eficiencia
-                for pagina in doc.pages(0, 3): 
-                    texto_extraido += pagina.get_text()
+        doc = docx.Document(ruta)
+        parrafos = [p.text for p in doc.paragraphs[:MAX_PARRAFOS_DOCX]]
+        return "\n".join(parrafos)
+    except Exception:
+        return leer_docx_raw(ruta)
 
-        # --- Leer WORD (.docx) ---
-        elif extension == '.docx':
-            try:
-                doc = docx.Document(ruta)
-                parrafos = [p.text for p in doc.paragraphs[:30]]
-                texto_extraido = "\n".join(parrafos)
-            except Exception:
-                texto_extraido = leer_docx_raw(ruta)
+def leer_pptx(ruta):
+    texto = ""
+    try:
+        prs = Presentation(ruta)
+        for slide in prs.slides[:MAX_SLIDES_PPTX]:
+            for shape in slide.shapes:
+                if hasattr(shape, "text"):
+                    texto += shape.text + " "
+    except Exception:
+        texto = leer_pptx_raw(ruta)
+    return texto
 
-        # --- Leer POWERPOINT (.pptx) ---
-        elif extension == '.pptx':
-            try:
-                prs = Presentation(ruta)
-                # Leemos solo las primeras 10 diapositivas para no saturar
-                for i, slide in enumerate(prs.slides[:10]):
-                    for shape in slide.shapes:
-                        if hasattr(shape, "text"):
-                            texto_extraido += shape.text + " "
-            except Exception:
-                texto_extraido = leer_pptx_raw(ruta)
+def leer_xlsx(ruta):
+    texto = ""
+    wb = openpyxl.load_workbook(ruta, data_only=True, read_only=True)
+    sheet = wb.active
+    for row in sheet.iter_rows(max_row=MAX_FILAS_XLSX, max_col=10, values_only=True):
+        fila_texto = " ".join([str(cell) for cell in row if cell is not None])
+        texto += fila_texto + " "
+    return texto
 
-        # --- Leer EXCEL (.xlsx) ---
-        elif extension == '.xlsx':
-            # data_only=True para leer el resultado de fórmulas, no la fórmula en sí
-            wb = openpyxl.load_workbook(ruta, data_only=True, read_only=True)
-            sheet = wb.active # Leemos la hoja principal
-            # Leemos las primeras 50 filas y 10 columnas
-            for row in sheet.iter_rows(max_row=50, max_col=10, values_only=True):
-                fila_texto = " ".join([str(cell) for cell in row if cell is not None])
-                texto_extraido += fila_texto + " "
+def leer_texto_plano(ruta):
+    try:
+        with open(ruta, 'r', encoding='utf-8', errors='ignore') as f:
+            return f.read(MAX_TEXTO_CHARS)
+    except Exception:
+        return ""
 
-    except Exception as e:
-        print(f"Error al leer {ruta.name}: {e}")
+def encode_image(image_path):
+    """Codifica una imagen en base64."""
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
 
-    return texto_extraido.lower().strip()
+# Registro de lectores por extensión
+LECTORES = {
+    '.pdf': leer_pdf,
+    '.docx': leer_docx,
+    '.pptx': leer_pptx,
+    '.xlsx': leer_xlsx,
+    '.txt': leer_texto_plano,
+    '.csv': leer_texto_plano,
+    '.md': leer_texto_plano,
+    '.json': leer_texto_plano,
+    '.xml': leer_texto_plano,
+    '.html': leer_texto_plano,
+}
+
+# Extensiones de imagen soportadas
+EXTENSIONES_IMAGEN = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.tiff'}
+
+def extraer_texto_del_archivo(ruta: Path):
+    """
+    Función principal para extraer texto de un archivo según su extensión.
+    """
+    extension = ruta.suffix.lower()
+    
+    if extension in LECTORES:
+        try:
+            return LECTORES[extension](ruta).lower().strip()
+        except Exception as e:
+            logger.error(f"Error al leer documento {ruta.name}: {e}")
+            return ""
+    
+    if extension in EXTENSIONES_IMAGEN:
+        return "IMAGE_FILE" # Marcador para que el servicio sepa que debe usar visión
+        
+    return ""
+
+def es_extension_soportada(ruta: Path):
+    ext = ruta.suffix.lower()
+    return ext in LECTORES or ext in EXTENSIONES_IMAGEN

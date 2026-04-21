@@ -2,7 +2,7 @@ import customtkinter as ctk
 from services.configuracion_services.configuracion_services import ConfiguracionServices
 from utils.config_componen_utils import *
 from public.widget.entry import EntryWidget, EntryAnchoWidget
-from utils.path_ultil import *
+from utils.path_util import *
 from utils.bind_mouse_wheel import bind_mouse_wheel
 from public.widget.mensaje_alerta import mensaje_alerta
 
@@ -120,8 +120,12 @@ class ConfigDirectoriosDestinosScreen(ctk.CTkFrame):
         self.retonar_configuracion_screen()
 
     def retonar_configuracion_screen(self):
-        # Forzamos la recarga reseteando la opción actual para que el sistema no crea que ya estamos ahí
-        self.parent_principal.dirijir_atomaticamente_opcion("configurar")
+        # self.parent_principal ahora es la instancia de ConfiguracionScreen
+        if hasattr(self.parent_principal, 'mostrar_menu_inicial'):
+            self.parent_principal.mostrar_menu_inicial()
+        else:
+            # Fallback por si acaso
+            self.destroy()
 
         
     

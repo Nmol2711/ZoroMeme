@@ -5,13 +5,14 @@ from utils.config_componen_utils import *
 class ResultadoOrganizarCarpetasScreen(ctk.CTkScrollableFrame):
     def __init__(self, master, parent_principal, resultados: dict):
         super().__init__(master, fg_color=COLOR_FONDO_SCREEN_SECUNDARIO)
+        self.screen_padre = master  # Referencia directa al componente ScreenOrganizarCarpeta
         self.parent_principal = parent_principal
         self.resultados = resultados
         self.contenido()
 
     def volver_a_organizar(self):
-        self.parent_principal.opcion_actual = None
-        self.parent_principal.dirijir_atomaticamente_opcion("organizar_carpeta")
+        # Usar la referencia directa para evitar el problema de Master en CTkScrollableFrame
+        self.screen_padre.finalizar_y_volver()
 
     def contenido(self):
         # --- Título Principal ---

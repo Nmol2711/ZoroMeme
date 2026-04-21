@@ -14,6 +14,7 @@ from public.auth.auth_confg import AuthCofig
 
 # --- VENTANA PRINCIPAL ---
 from public.screen.screen_principal import ScreenPrincipal
+from public.screen.componentes.onboarding.onboarding_screen import OnboardingScreen
 from services.organizador_documentos.organizador_documentos import OrganizarDocumentosServices
 
 class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
@@ -72,12 +73,28 @@ class MainWindow(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.vista_actual = None # Declaramos una variable para la vista actual
 
-        self.mostrar_vista_principal()
+        # Decidir qué vista mostrar
+        if self.debe_mostrar_onboarding():
+            self.mostrar_onboarding()
+        else:
+            self.mostrar_vista_principal()
+
+    def debe_mostrar_onboarding(self):
+        """Verifica si el diccionario de palabras está vacío."""
+        dic = self.services["configuracion_services"].obtener_diccionario_palabras()
+        return not dic or len(dic) == 0
+
+    def mostrar_onboarding(self):
+        if self.vista_actual:
+            self.vista_actual.destroy()
+        self.vista_actual = OnboardingScreen(self, self, self.auth_config, self.services)
+        self.vista_actual.pack(fill="both", expand=True)
     
     def mostrar_vista_principal(self):
-        if self.vista_actual is None or not isinstance(self.vista_actual, ScreenPrincipal):
-            self.vista_actual = ScreenPrincipal(self, self.auth_config, self.services)
-            self.vista_actual.pack(fill="both", expand=True)
+        if self.vista_actual:
+            self.vista_actual.destroy()
+        self.vista_actual = ScreenPrincipal(self, self.auth_config, self.services)
+        self.vista_actual.pack(fill="both", expand=True)
         
 
 

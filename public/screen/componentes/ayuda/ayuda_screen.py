@@ -70,9 +70,9 @@ class AyudaScreen(ctk.CTkFrame):
                              command=lambda p=pregunta: self.mostrar_respuesta_pregunta(p)).pack(pady=10, padx=20, fill="x")
 
         self.boton_volver_preguntas = ctk.CTkButton(self.frame_contenido_mostrar, 
-                                               text="Volver a las preguntas frecuentes", 
-                                               command=self.volver_preguntas_frecuentes,
-                                               fg_color=COLOR_BOTON_PRINCIPAL,  
+                                                text="← Volver a las preguntas frecuentes", 
+                                                command=self.volver_preguntas_frecuentes,
+                                                fg_color=COLOR_BOTON_PRINCIPAL,  
                                                 hover_color=COLOR_BOTON_PRINCIPAL_HOVER)
         
     def volver_preguntas_frecuentes(self):
@@ -83,27 +83,30 @@ class AyudaScreen(ctk.CTkFrame):
     def mostrar_respuesta_pregunta(self, pregunta):
         self.frame_preguntas.pack_forget()
         
+        # Primero mostramos el botón de volver al inicio del contenedor para que sea accesible
+        self.boton_volver_preguntas.pack(pady=10, padx=20, side="top", anchor="w")
+
         # Limpiar respuesta anterior
         for widget in self.frame_respuesta.winfo_children():
             widget.destroy()
             
-        self.frame_respuesta.pack(fill="both", expand=True, padx=20, pady=20)
+        self.frame_respuesta.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         
         respuesta = REPUESTAJE_PREGUNTAS_FRECUENTES.get(pregunta, "Respuesta no encontrada")
         
         # Título de la pregunta
-        ctk.CTkLabel(self.frame_respuesta, text=pregunta, font=FONT_TITULO_SECUNDARIO, text_color=COLOR_TEXTO_TITULO, wraplength=700, justify="left").pack(pady=(0, 20), anchor="w")
+        ctk.CTkLabel(self.frame_respuesta, text=pregunta, font=FONT_TITULO_SECUNDARIO, text_color=COLOR_TEXTO_TITULO, wraplength=700, justify="left").pack(pady=(0, 10), anchor="w")
 
         # Contenido de la respuesta
-        textbox = ctk.CTkTextbox(self.frame_respuesta, height=400 if pregunta == "Como crear un prompt para que me ayude a organizar mis carpetas?" else 200, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, wrap="word")
+        textbox = ctk.CTkTextbox(self.frame_respuesta, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, wrap="word")
         
         if pregunta == "Como crear un prompt para que me ayude a organizar mis carpetas?":
             textbox.configure(fg_color=COLOR_FONDO_INPUT, text_color=COLOR_TEXTO_INPUT)
+            # Altura fija para prompts largos pero permitiendo scroll
+            textbox.configure(height=350)
         else:
-            textbox.configure(fg_color="transparent")
+            textbox.configure(fg_color="transparent", height=200)
 
         textbox.pack(pady=10, fill="both", expand=True)
         textbox.insert("1.0", respuesta)
         textbox.configure(state="disabled")
-
-        self.boton_volver_preguntas.pack(pady=20, padx=20, side="bottom", anchor="w")

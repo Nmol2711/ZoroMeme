@@ -7,7 +7,7 @@ from public.screen.componentes.contacto.contacto_screen import ContactoScreen
 from public.screen.componentes.historial_movimiento.historial_movimiento_screen import HistorialMovimientoScreen
 from public.screen_base import ScreenBase
 from public.widget.mensaje_alerta import mensaje_alerta
-from utils.path_ultil import *
+from utils.path_util import *
 from utils.config_componen_utils import *
 from config.settings import Settings
 from config.app_config import AppConfig
@@ -18,10 +18,37 @@ from public.screen.componentes.organizar_carpeta.organizar_carpetas_screen impor
 class ScreenPrincipal(ScreenBase):
     def __init__(self, master, auth_config: AuthCofig, services):
         super().__init__(master, auth_config, services)
+        self.vistas = {} # Cache de vistas para no perder estado
         
         self.inicio()
         # Esperamos 1 segundo (1000ms) para que se muestre el inicio antes de validar
         self.after(1000, self.validar_arranque)
+
+    def _cambiar_vista(self, nombre_vista, clase_vista, *args, **kwargs):
+        """Maneja el cambio de vista ocultando la actual y mostrando la nueva o cacheada."""
+        if self.opcion_actual == nombre_vista:
+            return
+        
+        # Ocultar vista anterior si existe
+        if self.opcion_actual and self.opcion_actual in self.vistas:
+            self.vistas[self.opcion_actual].pack_forget()
+        else:
+            # Limpieza inicial por si hay widgets manuales (como el inicio)
+            for widget in self.cuerpo_principal.winfo_children():
+                if widget not in self.vistas.values():
+                    widget.destroy()
+
+        self.opcion_actual = nombre_vista
+
+        # Crear vista si no está en cache
+        if nombre_vista not in self.vistas:
+            self.vistas[nombre_vista] = clase_vista(self.cuerpo_principal, self, *args, **kwargs)
+        
+        # Mostrar vista
+        self.vistas[nombre_vista].pack(fill="both", expand=True)
+        
+        # Actualizar sidebar si es necesario (ej: resaltar botón actual)
+        # self.actualizar_resaltado_menu(nombre_vista)
 
     def validar_arranque(self):
         existe = self.auth_config.existe_api_key()
@@ -33,14 +60,19 @@ class ScreenPrincipal(ScreenBase):
                 mensaje_alerta("Error", "La API Key no es válida o ha expirado.", accion=lambda: self.dirijir_atomaticamente_opcion("configurar"))
 
     def inicio(self):
-        # Limpiar el cuerpo principal
+        # El inicio es un frame especial que se reconstruye para mostrar estadísticas actualizadas
         if self.opcion_actual == "inicio":
             return
-        self.opcion_actual = "inicio"
-
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()    
         
+        if self.opcion_actual and self.opcion_actual in self.vistas:
+            self.vistas[self.opcion_actual].pack_forget()
+        
+        self.opcion_actual = "inicio"
+        # Limpiar inicio anterior si existe
+        for widget in self.cuerpo_principal.winfo_children():
+            if widget not in self.vistas.values():
+                widget.destroy()
+
         # Obtener estadísticas
         hoy = datetime.now().strftime("%Y-%m-%d")
         primero_dia_mes = hoy[:8] + "01"
@@ -77,79 +109,34 @@ class ScreenPrincipal(ScreenBase):
 
         # --- SECCIÓN DERECHA: Imagen ---
         tamano_goku = AppConfig().tamano_goku_actual
-        print("Tamaño de Goku en inicio:", tamano_goku)
         goku = leer_imagen(Settings().ruta_img["goku_inicio"], tamano=tamano_goku)
         goku_label = ctk.CTkLabel(frame_inicio, image=goku, text="")
-        # rowspan=2 permite que la imagen ocupe tanto la fila del texto como la de las stats
         goku_label.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
     def organizar_carpeta(self):
-
-        if self.opcion_actual == "organizar_carpeta":
+        # 1. Validar que la API Key existe (Local, rápido)
+        existe, mensaje = self.auth_config.existe_api_key()
+        if not existe:
+            mensaje_alerta("API Key requerida", 
+                          "Para usar el organizador es necesario configurar una API Key de Groq.\n\n" + mensaje,
+                          accion=lambda: self.dirijir_atomaticamente_opcion("configurar"))
             return
-        self.opcion_actual = "organizar_carpeta"
 
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()
-
-        screen_organizar_carpeta = ScreenOrganizarCarpeta(self.cuerpo_principal,self, self.auth_config, self.services["organizador_documentos_services"])
-        screen_organizar_carpeta.pack(fill="both", expand=True)
+        # 2. Cambiar de vista instantáneamente. 
+        # La validación funcional se hace al arrancar o al presionar "Comenzar" dentro de la vista.
+        self._cambiar_vista("organizar_carpeta", ScreenOrganizarCarpeta, self.auth_config, self.services["organizador_documentos_services"])
 
     def historial_movimiento(self):
-
-        if self.opcion_actual == "historial_movimiento":
-            return
-        self.opcion_actual = "historial_movimiento"
-        
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()
-
-        historial_movimiento = HistorialMovimientoScreen(self.cuerpo_principal, self, self.services["configuracion_services"])
-        historial_movimiento.pack(fill="both", expand=True)
+        self._cambiar_vista("historial_movimiento", HistorialMovimientoScreen, self.services["configuracion_services"])
 
     def configurar(self):
-
-        if self.opcion_actual == "configurar":
-            return
-        self.opcion_actual = "configurar"
-
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()
-
-        configurarScreen = ConfiguracionScreen(self.cuerpo_principal, self, self.auth_config, self.services["configuracion_services"])
-        configurarScreen.pack(fill="both", expand=True)
+        self._cambiar_vista("configurar", ConfiguracionScreen, self.auth_config, self.services["configuracion_services"])
 
     def mostrar_ayuda(self):
-
-        if self.opcion_actual == "ayuda":
-            return
-        self.opcion_actual = "ayuda"
-
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()
-
-        ayuda_screen = AyudaScreen(self.cuerpo_principal, self)
-        ayuda_screen.pack(fill="both", expand=True)
+        self._cambiar_vista("ayuda", AyudaScreen)
 
     def contacto(self):
-        if self.opcion_actual == "ayuda":
-            return
-        self.opcion_actual = "ayuda"
-
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()
-
-        contacto_screen = ContactoScreen(self.cuerpo_principal, self, self.auth_config, self.services["email_services"])
-        contacto_screen.pack(fill="both", expand=True)
+        self._cambiar_vista("contacto", ContactoScreen, self.auth_config, self.services["email_services"])
 
     def acerca_de(self):
-
-        if self.opcion_actual == "acerca_de":
-            return
-        self.opcion_actual = "acerca_de"
-
-        for widget in self.cuerpo_principal.winfo_children():
-            widget.destroy()
-
-        acerca_de_screen = AcercaDeScreen(self.cuerpo_principal, self)
-        acerca_de_screen.pack(fill="both", expand=True)
+        self._cambiar_vista("acerca_de", AcercaDeScreen)

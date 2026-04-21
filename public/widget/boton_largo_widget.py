@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from config.settings import Settings
 from utils.config_componen_utils import *
-from utils.path_ultil import leer_imagen
+from utils.path_util import leer_imagen
 
 
 class BotonLargoWidget(ctk.CTkFrame):

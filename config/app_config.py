@@ -1,5 +1,5 @@
 import os
-from utils.path_ultil import resource_path
+from utils.path_util import resource_path
 # Importamos el módulo de estilos y la función para actualizar fuentes
 import utils.config_componen_utils as style
 from utils.config_componen_utils import actualizar_fuentes_globales

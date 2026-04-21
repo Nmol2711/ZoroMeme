@@ -5,7 +5,7 @@ from public.auth.auth_confg import AuthCofig
 from public.widget.mensaje_alerta import mensaje_alerta
 from services.email_services.email_services import EmailServices
 from utils.config_componen_utils import *
-from utils.path_ultil import *
+from utils.path_util import *
 from public.widget.entry import EntryWidget, EntryAnchoWidget
 from utils.bind_mouse_wheel import bind_mouse_wheel
 from config.settings import Settings
