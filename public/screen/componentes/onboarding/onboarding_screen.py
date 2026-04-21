@@ -2,6 +2,7 @@ import customtkinter as ctk
 from services.areas_ocupacionales.areas_services import AreasServices
 from utils.config_componen_utils import *
 from public.widget.mensaje_alerta import mensaje_alerta
+from utils.bind_mouse_wheel import bind_mouse_wheel
 
 class OnboardingScreen(ctk.CTkFrame):
     def __init__(self, master, parent, auth_config, services):
@@ -74,6 +75,9 @@ class OnboardingScreen(ctk.CTkFrame):
         self.entry_custom = ctk.CTkEntry(self.custom_input_frame, placeholder_text="Describe tu trabajo (ej: Fotógrafo de bodas, Carpintero, Chef...)", 
                                          height=40, font=FONT_NORMAL)
         self.entry_custom.pack(fill="x", padx=20, pady=20)
+        
+        # Aplicar scroll para Linux
+        bind_mouse_wheel(self.scroll_frame, self.scroll_frame)
 
     def crear_tarjeta_area(self, nombre, icono, row, col, is_custom=False):
         card = ctk.CTkFrame(self.scroll_frame, fg_color=COLOR_CATEGORIA_CARD, corner_radius=12, cursor="hand2")

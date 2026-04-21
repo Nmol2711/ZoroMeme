@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from utils.config_componen_utils import *
+from utils.bind_mouse_wheel import bind_mouse_wheel
 
 
 class ResultadoOrganizarCarpetasScreen(ctk.CTkScrollableFrame):
@@ -49,8 +50,8 @@ class ResultadoOrganizarCarpetasScreen(ctk.CTkScrollableFrame):
             ctk.CTkLabel(tabla_frame, text="No se movió ningún archivo.", font=FONT_NORMAL, text_color=COLOR_TEXTO_SUBTITULO).grid(row=1, column=0, columnspan=2, pady=20)
         else:
             for i, (nombre, categoria) in enumerate(archivos_movidos, start=1):
-                # Colores de fila alternados para mejor legibilidad
-                row_color = COLOR_FONDO_INPUT if i % 2 != 0 else "transparent"
+                # Usamos colores sólidos en lugar de transparent para evitar fallos en Linux
+                row_color = COLOR_FONDO_INPUT if i % 2 != 0 else COLOR_FONDO_SCREEN_SECUNDARIO
                 ctk.CTkLabel(tabla_frame, text=nombre, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, anchor="w", fg_color=row_color).grid(row=i, column=0, sticky="nsew", padx=(0,2), pady=1)
                 ctk.CTkLabel(tabla_frame, text=categoria, font=FONT_NORMAL, text_color=COLOR_TEXTO_NORMAL, anchor="w", fg_color=row_color).grid(row=i, column=1, sticky="nsew", padx=(2,0), pady=1)
 
@@ -62,3 +63,6 @@ class ResultadoOrganizarCarpetasScreen(ctk.CTkScrollableFrame):
                                      width=120,
                                      )
         boton_volver.pack(pady=20, padx=40, anchor="e")
+
+        # Aplicar scroll para Linux de forma recursiva a todos los widgets internos
+        bind_mouse_wheel(self, self)
