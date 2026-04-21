@@ -61,8 +61,12 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
 
     def contenido(self):
         try:
+            # Configurar el grid del contenedor principal (self) para capas
+            self.grid_columnconfigure(0, weight=1)
+            self.grid_rowconfigure(0, weight=1)
+
             self.frame_main = ctk.CTkFrame(self, fg_color="transparent")
-            self.frame_main.pack(expand=True, fill="both")
+            self.frame_main.grid(row=0, column=0, sticky="nsew")
 
             self.label_titulo = ctk.CTkLabel(self.frame_main,
                         text="Organizador de carpetas", 
@@ -202,31 +206,34 @@ class ScreenOrganizarCarpeta(ctk.CTkFrame):
     def mostrar_resultado(self, resultados: dict):
         if not self.winfo_exists(): return
         
-        # Ocultar controles principales y mostrar resultados
-        self.frame_main.pack_forget()
+        # Ocultar controles principales usando grid_remove o simplemente tkraise si lo creamos encima
+        self.frame_main.grid_remove()
         
         # Limpiar resultados previos si los hay
         if hasattr(self, 'frame_resultados'):
             self.frame_resultados.destroy()
             
         self.frame_resultados = ResultadoOrganizarCarpetasScreen(self, self.parent, resultados)
-        self.frame_resultados.pack(fill="both", expand=True)
+        self.frame_resultados.grid(row=0, column=0, sticky="nsew")
+        self.frame_resultados.tkraise()
 
     def finalizar_y_volver(self):
         """Invocado por el botón de la pantalla de resultados."""
         self.estado.reset()
         
-        # Limpieza agresiva: destruir cualquier widget que no sea el frame_main
-        for widget in self.winfo_children():
-            if widget != self.frame_main:
-                widget.destroy()
+        # Limpieza agresiva: destruir el frame de resultados
+        if hasattr(self, 'frame_resultados'):
+            self.frame_resultados.destroy()
+            del self.frame_resultados
         
-        # Si por alguna razón frame_main se perdió, lo reconstruimos (fallback de seguridad)
+        # Si por alguna razón frame_main se perdió, lo reconstruimos
         if not hasattr(self, 'frame_main') or not self.frame_main.winfo_exists():
             self.contenido()
         
-        # Volver a mostrar el frame principal
-        self.frame_main.pack(expand=True, fill="both")
+        # Volver a mostrar el frame principal usando grid y tkraise
+        self.frame_main.grid(row=0, column=0, sticky="nsew")
+        self.frame_main.tkraise()
+        
         self.eliminar_ruta()
         
         if hasattr(self, 'frame_progreso_container'):
